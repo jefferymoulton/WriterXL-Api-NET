@@ -37,5 +37,14 @@ namespace WriterXL.Api.Controllers
 
             return member;
         }
+
+        [HttpPost]
+        public async Task<ActionResult<Member>> CreateMember(Member member)
+        {
+            _context.Members.Add(member);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetMember", new {id = member.Id}, member);
+        }
     }
 }
