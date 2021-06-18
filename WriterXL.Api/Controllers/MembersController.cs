@@ -1,5 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +12,9 @@ namespace WriterXL.Api.Controllers
     [Route("api/[controller]")]
     public class MembersController : ControllerBase
     {
-        private readonly MemberContext _context;
+        private readonly WxlContext _context;
 
-        public MembersController(MemberContext context)
+        public MembersController(WxlContext context)
         {
             _context = context;
         }
@@ -26,9 +26,26 @@ namespace WriterXL.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Member>> GetMember(int id)
+        public async Task<ActionResult<Member>> GetMemberById(int id)
         {
-            var member = await _context.Members.FirstOrDefaultAsync();
+            var member = await _context.Members
+                .Where(m => m.Id == id)
+                .SingleOrDefaultAsync();
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
+            return member;
+        }
+
+        [HttpGet("email/{email}")]
+        public async Task<ActionResult<Member>> GetMemberByEmail(string email)
+        {
+            var member = await _context.Members
+                .Where(m => m.EmailAddress.Equals(email))
+                .SingleOrDefaultAsync();
 
             if (member == null)
             {
@@ -44,7 +61,7 @@ namespace WriterXL.Api.Controllers
             _context.Members.Add(member);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMember", new {id = member.Id}, member);
+            return CreatedAtAction("GetMemberById", new {id = member.Id}, member);
         }
     }
 }
