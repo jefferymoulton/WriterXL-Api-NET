@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WriterXL.Api.Models;
 using WriterXL.Data;
 using WriterXL.Domain.Groups;
 
@@ -12,41 +14,62 @@ namespace WriterXL.Api.Controllers
     [Route("api/[controller]")]
     public class GroupsController : ControllerBase
     {
-        private readonly WxlContext _context;
+        private readonly IGroupRepository _repository;
+        private readonly IMapper _mapper;
 
-        public GroupsController(WxlContext context)
+        public GroupsController(IGroupRepository repository, IMapper mapper)
         {
-            _context = context;
+            _repository = repository;
+            _mapper = mapper;
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<IEnumerable<Group>>> GetAllGroups()
+        public async Task<ActionResult<GroupModel[]>> GetAllGroups()
         {
-            return await _context.Groups.ToListAsync();
+            var groups = await _repository.GetAllGroupsAsync();
+            return _mapper.Map<GroupModel[]>(groups);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Group>> GetGroupById(int id)
+        public async Task<ActionResult<GroupModel>> GetGroupById(int id)
         {
-            var group = await _context.Groups
-                .Where(g => g.Id == id)
-                .SingleOrDefaultAsync();
+            var group = await _repository.GetGroupByIdAsync(id);
+            return GetGroupFromResults(group);
+        }
 
-            if (group == null)
+        [HttpGet("moniker/{moniker}")]
+        public async Task<ActionResult<GroupModel>> GetGroupByMoniker(string moniker)
+        {
+            var group = await _repository.GetGroupByMonikerAsync(moniker);
+            return GetGroupFromResults(group);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<GroupModel>> CreateGroup(Group group)
+        {
+            try
+            {
+                _repository.Add(group);
+                await _repository.SaveChangesAsync();
+
+                // TODO: Figure out how to return the model, not the object.
+                return CreatedAtAction("GetGroupById", new {id = group.Id}, group);
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict("A results with that moniker already exists.");
+            }
+
+        }
+
+        private ActionResult<GroupModel> GetGroupFromResults(Group results)
+        {
+            if (results == null)
             {
                 return NotFound();
             }
 
-            return group;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Group>> CreateGroup(Group group)
-        {
-            _context.Groups.Add(group);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetGroupById", new {id = group.Id}, group);
+            return _mapper.Map<GroupModel>(results);
         }
     }
 }
