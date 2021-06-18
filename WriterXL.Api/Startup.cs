@@ -33,7 +33,7 @@ namespace WriterXL.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "WriterXL.Api", Version = "v1"});
             });
-            services.AddDbContext<MemberContext>(opt =>
+            services.AddDbContext<WxlContext>(opt =>
                 opt.UseSqlServer(Configuration.GetConnectionString("WriterXL"))
                     .EnableSensitiveDataLogging()
                     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));

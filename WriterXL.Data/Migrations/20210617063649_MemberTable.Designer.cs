@@ -8,7 +8,7 @@ using WriterXL.Data;
 
 namespace WriterXL.Data.Migrations
 {
-    [DbContext(typeof(MemberContext))]
+    [DbContext(typeof(WxlContext))]
     [Migration("20210617063649_MemberTable")]
     partial class MemberTable
     {
