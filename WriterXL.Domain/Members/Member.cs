@@ -23,6 +23,8 @@ namespace WriterXL.Domain.Members
         
         [Required]
         public DateTime MemberSince { get; set; }
+
+        public List<Group> MemberOf { get; set; } = new List<Group>();
     }
 
     public enum MemberStatus

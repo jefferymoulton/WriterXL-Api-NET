@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using WriterXL.Domain;
 using WriterXL.Domain.Groups;
 using WriterXL.Domain.Members;
 
@@ -31,6 +32,15 @@ namespace WriterXL.Data
 
             modelBuilder.Entity<Group>()
                 .Property(g => g.DateCreated)
+                .HasDefaultValueSql("GETDATE()");
+
+            modelBuilder.Entity<Group>()
+                .HasMany(g => g.Members)
+                .WithMany(m => m.MemberOf)
+                .UsingEntity<GroupMembers>
+                (gm => gm.HasOne<Member>().WithMany(),
+                    gm => gm.HasOne<Group>().WithMany())
+                .Property(gm => gm.MemberSince)
                 .HasDefaultValueSql("GETDATE()");
         }
     }

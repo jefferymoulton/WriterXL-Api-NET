@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using WriterXL.Domain.Groups;
+using WriterXL.Domain.Members;
 
 namespace WriterXL.Data
 {
@@ -10,8 +11,10 @@ namespace WriterXL.Data
         void Delete<T>(T entity) where T : class;
         Task<bool> SaveChangesAsync();
 
-        Task<Group[]> GetAllGroupsAsync();
-        Task<Group> GetGroupByIdAsync(int id);
-        Task<Group> GetGroupByMonikerAsync(string moniker);
+        Task<bool> AddMemberToGroup(Member member, string moniker);
+
+        Task<Group[]> GetAllGroupsAsync(bool includeMembers = false);
+        Task<Group> GetGroupByIdAsync(int id, bool includeMembers = false);
+        Task<Group> GetGroupByMonikerAsync(string moniker, bool includeMembers = false);
     }
 }

@@ -17,5 +17,7 @@ namespace WriterXL.Domain.Groups
         
         [Required]
         public DateTime DateCreated { get; set; }
+
+        public List<Member> Members { get; set; } = new List<Member>();
     }
 }

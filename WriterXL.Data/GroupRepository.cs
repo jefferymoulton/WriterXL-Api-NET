@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WriterXL.Domain.Groups;
+using WriterXL.Domain.Members;
 
 namespace WriterXL.Data
 {
@@ -32,34 +33,53 @@ namespace WriterXL.Data
 
         public async Task<bool> SaveChangesAsync()
         {
-            _logger.LogInformation($"Attempitng to save the changes in the context");
+            _logger.LogInformation($"Attempting to save the changes in the context");
 
             // Only return success if at least one row was changed
             return (await _context.SaveChangesAsync()) > 0;
         }
 
-        public async Task<Group[]> GetAllGroupsAsync()
+        public async Task<bool> AddMemberToGroup(Member member, string moniker)
+        {
+            _logger.LogInformation($"Adding member {member.Id} to group {moniker}"); 
+            
+            var group = _context.Groups.Where(g => g.Moniker.Equals(moniker)).FirstOrDefault();
+            group.Members.Add(member);
+
+            var result = _context.SaveChanges();
+            return (result > 0);
+        }
+
+        public async Task<Group[]> GetAllGroupsAsync(bool includeMembers = false)
         {
             _logger.LogInformation($"Retriving all groups");
-            return await _context.Groups.ToArrayAsync();
+            
+            IQueryable<Group> query = _context.Groups;
+            if (includeMembers) query = query.Include(g => g.Members);
+
+            return await query.ToArrayAsync();
         }
 
-        public async Task<Group> GetGroupByIdAsync(int id)
+        public async Task<Group> GetGroupByIdAsync(int id, bool includeMembers = false)
         {
             _logger.LogInformation($"Retrieving group by Id: {id}");
+            
+            IQueryable<Group> query = _context.Groups;
+            if (includeMembers) query = query.Include(g => g.Members);
+            query = query.Where(g => g.Id == id);
 
-            return await _context.Groups
-                .Where(g => g.Id == id)
-                .SingleOrDefaultAsync();
+            return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<Group> GetGroupByMonikerAsync(string moniker)
+        public async Task<Group> GetGroupByMonikerAsync(string moniker, bool includeMembers = false)
         {
             _logger.LogInformation($"Retrieving group by moniker {moniker}");
 
-            return await _context.Groups
-                .Where(g => g.Moniker.Equals(moniker))
-                .SingleOrDefaultAsync();
+            IQueryable<Group> query = _context.Groups;
+            if (includeMembers) query = query.Include(g => g.Members);
+            query = query.Where(g => g.Moniker.Equals(moniker));
+
+            return await query.FirstOrDefaultAsync();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using WriterXL.Domain.Members;
 
 namespace WriterXL.Api.Models
@@ -8,5 +9,7 @@ namespace WriterXL.Api.Models
         public string LastName { get; set; }
         public string EmailAddress { get; set; }
         public MemberStatus Status { get; set; }
+        
+        public ICollection<GroupModel> MemberOf { get; set; }
     }
 }

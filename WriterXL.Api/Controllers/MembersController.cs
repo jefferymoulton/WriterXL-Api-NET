@@ -31,24 +31,26 @@ namespace WriterXL.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<MemberModel>> GetMemberById(int id)
+        public async Task<ActionResult<MemberModel>> GetMemberById(int id, bool includeGroups = false)
         {
-            var member = await _repository.GetMemberByIdAsync(id);
+            var member = await _repository.GetMemberByIdAsync(id, includeGroups);
             return GetMemberFromResults(member);
         }
 
         [HttpGet("email/{emailAddress}")]
-        public async Task<ActionResult<MemberModel>> GetMemberByEmail(string emailAddress)
+        public async Task<ActionResult<MemberModel>> GetMemberByEmail(string emailAddress, bool includeGroups = false)
         {
-            var member = await _repository.GetMemberByEmailAsync(emailAddress);
+            var member = await _repository.GetMemberByEmailAsync(emailAddress, includeGroups);
             return GetMemberFromResults(member);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Member>> CreateMember(Member member)
+        public async Task<ActionResult<MemberModel>> CreateMember(MemberModel memberModel)
         {
             try
             {
+                var member = _mapper.Map<Member>(memberModel);
+                
                 _repository.Add(member);
                 await _repository.SaveChangesAsync();
 

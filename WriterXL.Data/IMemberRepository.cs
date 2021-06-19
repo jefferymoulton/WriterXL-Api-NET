@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using WriterXL.Domain.Groups;
 using WriterXL.Domain.Members;
 
 namespace WriterXL.Data
@@ -11,7 +12,7 @@ namespace WriterXL.Data
         Task<bool> SaveChangesAsync();
         
         Task<Member[]> GetAllMembersAsync();
-        Task<Member> GetMemberByIdAsync(int id);
-        Task<Member> GetMemberByEmailAsync(string emailAddress);
+        Task<Member> GetMemberByIdAsync(int id, bool includeGroups = false);
+        Task<Member> GetMemberByEmailAsync(string emailAddress, bool includeGroups = false);
     }
 }

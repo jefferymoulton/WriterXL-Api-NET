@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WriterXL.Domain.Groups;
 using WriterXL.Domain.Members;
 
 namespace WriterXL.Data
@@ -40,26 +41,30 @@ namespace WriterXL.Data
 
         public async Task<Member[]> GetAllMembersAsync()
         {
-            _logger.LogInformation($"Retrieving all groups.");
+            _logger.LogInformation($"Retrieving all members.");
             return await _context.Members.ToArrayAsync();
         }
 
-        public async Task<Member> GetMemberByIdAsync(int id)
+        public async Task<Member> GetMemberByIdAsync(int id, bool includeGroups = false)
         {
             _logger.LogInformation($"Retrieving a Member by Id: {id}");
 
-            return await _context.Members
-                .Where(m => m.Id == id)
-                .SingleOrDefaultAsync();
+            IQueryable<Member> query = _context.Members;
+            if (includeGroups) query = query.Include(m => m.MemberOf);
+            query = query.Where(m => m.Id == id);
+
+            return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<Member> GetMemberByEmailAsync(string emailAddress)
+        public async Task<Member> GetMemberByEmailAsync(string emailAddress, bool includeGroups = false)
         {
             _logger.LogInformation($"Retrieving a Member by {emailAddress}");
 
-            return await _context.Members
-                .Where(m => m.EmailAddress.Equals(emailAddress))
-                .SingleOrDefaultAsync();
+            IQueryable<Member> query = _context.Members;
+            if (includeGroups) query = query.Include(m => m.MemberOf);
+            query = query.Where(m => m.EmailAddress.Equals(emailAddress));
+            
+            return await query.FirstOrDefaultAsync();
         }
     }
 }

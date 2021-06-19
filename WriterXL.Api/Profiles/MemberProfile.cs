@@ -1,5 +1,6 @@
 using AutoMapper;
 using WriterXL.Api.Models;
+using WriterXL.Domain.Groups;
 using WriterXL.Domain.Members;
 
 namespace WriterXL.Api.Profiles
@@ -8,7 +9,9 @@ namespace WriterXL.Api.Profiles
     {
         public MemberProfile()
         {
-            this.CreateMap<Member, MemberModel>();
+            this.CreateMap<Member, MemberModel>()
+                .ForMember(model => model.MemberOf, 
+                    opt => opt.MapFrom(m => m.MemberOf));
         }
     }
 }

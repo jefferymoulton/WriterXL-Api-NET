@@ -8,7 +8,9 @@ namespace WriterXL.Api.Profiles
     {
         public GroupProfile()
         {
-            this.CreateMap<Group, GroupModel>();
+            this.CreateMap<Group, GroupModel>()
+                .ForMember(model => model.Members,
+                    opt => opt.MapFrom(g => g.Members));
         }
     }
 }
